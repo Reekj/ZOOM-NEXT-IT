@@ -11,32 +11,39 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import {
   ArrowDown,
+  ArrowLeft,
+  ArrowRight,
   ArrowUpRight,
   Check,
-  Menu,
-  X,
-  Video,
-  Users,
   GraduationCap,
+  Menu,
+  Pause,
+  Play,
+  Users,
+  Video,
+  X,
 } from "lucide-react";
+
+import "./styles.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/* =========================================================
+/* ==========================================================
    CONFIGURATION
-========================================================= */
+========================================================== */
 
 const REGISTRATION_URL =
   import.meta.env.VITE_ZOOM_REGISTRATION_URL?.trim();
 
-const navItems = [
+const NAV_ITEMS = [
   { label: "About", href: "#about" },
   { label: "Education", href: "#education" },
   { label: "Experience", href: "#experience" },
-  { label: "Why attend", href: "#why-attend" },
+  { label: "Speakers", href: "#speakers" },
+  { label: "Agenda", href: "#agenda" },
 ];
 
-const HERO_IMAGE_CANDIDATES = [
+const HERO_IMAGES = [
   "/images/Hero-Image-1.png",
   "/images/Hero-Image-1.jpg",
   "/images/Hero-Image-1.jpeg",
@@ -44,32 +51,148 @@ const HERO_IMAGE_CANDIDATES = [
   "/images/Hero-Image-1.avif",
 ];
 
-/* =========================================================
-   HOOKS
-========================================================= */
+/* ==========================================================
+   SPEAKER DATA
+
+   Replace with the official speaker details.
+   Images go in public/images/speakers/
+========================================================== */
+
+const SPEAKERS = [
+  {
+    id: "01",
+    name: "SPEAKER ONE",
+    role: "ZOOM EDUCATION EXPERT",
+    organization: "Zoom",
+    bio: "Discover the opportunities for transforming teaching and learning through connected technology.",
+    image: "",
+  },
+  {
+    id: "02",
+    name: "SPEAKER TWO",
+    role: "EDUCATION TECHNOLOGY SPECIALIST",
+    organization: "To be announced",
+    bio: "Explore practical approaches to creating more engaging virtual and blended classrooms.",
+    image: "",
+  },
+  {
+    id: "03",
+    name: "SPEAKER THREE",
+    role: "INSTITUTIONAL COLLABORATION EXPERT",
+    organization: "To be announced",
+    bio: "Learn how educational institutions can improve communication across teams, departments and campuses.",
+    image: "",
+  },
+  {
+    id: "04",
+    name: "SPEAKER FOUR",
+    role: "DIGITAL LEARNING STRATEGIST",
+    organization: "To be announced",
+    bio: "Explore new possibilities for modern, connected and inclusive learning environments.",
+    image: "",
+  },
+  {
+    id: "05",
+    name: "SPEAKER FIVE",
+    role: "NEXT-IT SERVICES REPRESENTATIVE",
+    organization: "NEXT-IT Services",
+    bio: "Discover how NEXT-IT can help Nigerian institutions explore modern communication and collaboration solutions.",
+    image: "",
+  },
+];
+
+/* ==========================================================
+   AGENDA DATA
+========================================================== */
+
+const AGENDA = [
+  {
+    number: "01",
+    category: "WELCOME",
+    title: "THE FUTURE OF LEARNING",
+    detail:
+      "Opening remarks and an introduction to the Zoom × NEXT-IT education webinar.",
+  },
+  {
+    number: "02",
+    category: "DISCOVER",
+    title: "CLASSROOMS, REIMAGINED",
+    detail:
+      "Explore approaches to engaging virtual and blended learning environments.",
+  },
+  {
+    number: "03",
+    category: "CONNECT",
+    title: "ONE CONNECTED CAMPUS",
+    detail:
+      "Ideas for improving communication between educators, administrators and students.",
+  },
+  {
+    number: "04",
+    category: "EXPLORE",
+    title: "SMARTER DIGITAL WORKFLOWS",
+    detail:
+      "An introduction to secure, scalable and AI-assisted collaboration possibilities.",
+  },
+  {
+    number: "05",
+    category: "ASK",
+    title: "LIVE QUESTIONS & NEXT STEPS",
+    detail:
+      "Bring your questions for the presenters and discover how to continue the conversation.",
+  },
+];
+
+const BENEFITS = [
+  {
+    n: "01",
+    title: "ENGAGING\nCLASSROOMS",
+    copy:
+      "Make digital learning more interactive, inclusive and accessible.",
+    Icon: GraduationCap,
+  },
+  {
+    n: "02",
+    title: "CONNECTED\nINSTITUTIONS",
+    copy:
+      "Bring educators, teams and departments into the same conversation.",
+    Icon: Users,
+  },
+  {
+    n: "03",
+    title: "SMARTER\nWORKFLOWS",
+    copy:
+      "Explore scalable, secure and AI-assisted ways to collaborate.",
+    Icon: Video,
+  },
+];
+
+/* ==========================================================
+   CUSTOM HOOKS
+========================================================== */
 
 function useReducedMotion() {
-  const [reducedMotion, setReducedMotion] = useState(() => {
-    if (typeof window === "undefined") return false;
-
-    return window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-  });
+  const [reducedMotion, setReducedMotion] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches
+  );
 
   useEffect(() => {
     const media = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     );
 
-    const listener = (event) => {
+    const handleChange = (event) => {
       setReducedMotion(event.matches);
     };
 
-    media.addEventListener("change", listener);
+    media.addEventListener("change", handleChange);
 
     return () => {
-      media.removeEventListener("change", listener);
+      media.removeEventListener("change", handleChange);
     };
   }, []);
 
@@ -83,29 +206,27 @@ function useHeroImage() {
     let cancelled = false;
     let image = null;
 
-    const findImage = (index) => {
-      if (cancelled || index >= HERO_IMAGE_CANDIDATES.length) {
+    const tryImage = (index) => {
+      if (cancelled || index >= HERO_IMAGES.length) {
         return;
       }
-
-      const source = HERO_IMAGE_CANDIDATES[index];
 
       image = new Image();
 
       image.onload = () => {
         if (!cancelled) {
-          setImageUrl(source);
+          setImageUrl(HERO_IMAGES[index]);
         }
       };
 
       image.onerror = () => {
-        findImage(index + 1);
+        tryImage(index + 1);
       };
 
-      image.src = source;
+      image.src = HERO_IMAGES[index];
     };
 
-    findImage(0);
+    tryImage(0);
 
     return () => {
       cancelled = true;
@@ -120,16 +241,16 @@ function useHeroImage() {
   return imageUrl;
 }
 
-/* =========================================================
+/* ==========================================================
    BRAND
-========================================================= */
+========================================================== */
 
 function Brand() {
   return (
     <a
       href="#home"
       className="brand"
-      aria-label="Zoom and NEXT-IT Services, back to top"
+      aria-label="Zoom and NEXT-IT Services"
     >
       <span className="zoom-wordmark">zoom</span>
 
@@ -146,13 +267,13 @@ function Brand() {
   );
 }
 
-/* =========================================================
-   LOADER
-========================================================= */
+/* ==========================================================
+   LOADING SCREEN
+========================================================== */
 
 function Loader({ onFinish, reducedMotion }) {
-  const trackRef = useRef(null);
   const overlayRef = useRef(null);
+  const progressRef = useRef(null);
 
   useEffect(() => {
     if (reducedMotion) {
@@ -161,29 +282,27 @@ function Loader({ onFinish, reducedMotion }) {
     }
 
     const ctx = gsap.context(() => {
-      const timeline = gsap.timeline({
+      const tl = gsap.timeline({
         onComplete: onFinish,
       });
 
-      timeline
-        .fromTo(
-          trackRef.current,
-          { scaleX: 0 },
-          {
-            scaleX: 1,
-            duration: 1.15,
-            ease: "power2.inOut",
-          }
-        )
-        .to(
-          overlayRef.current,
-          {
-            yPercent: -101,
-            duration: 0.9,
-            ease: "power4.inOut",
-          },
-          "+=0.15"
-        );
+      tl.fromTo(
+        progressRef.current,
+        { scaleX: 0 },
+        {
+          scaleX: 1,
+          duration: 1.15,
+          ease: "power2.inOut",
+        }
+      ).to(
+        overlayRef.current,
+        {
+          yPercent: -101,
+          duration: 0.9,
+          ease: "power4.inOut",
+        },
+        "+=0.15"
+      );
     }, overlayRef);
 
     return () => ctx.revert();
@@ -193,8 +312,8 @@ function Loader({ onFinish, reducedMotion }) {
 
   return (
     <div
-      className="loader"
       ref={overlayRef}
+      className="loader"
       role="status"
       aria-label="Loading webinar experience"
     >
@@ -209,7 +328,7 @@ function Loader({ onFinish, reducedMotion }) {
 
         <div className="loader__track">
           <div
-            ref={trackRef}
+            ref={progressRef}
             className="loader__progress"
           />
         </div>
@@ -222,9 +341,9 @@ function Loader({ onFinish, reducedMotion }) {
   );
 }
 
-/* =========================================================
+/* ==========================================================
    REGISTRATION BUTTON
-========================================================= */
+========================================================== */
 
 function RegisterAction({
   className = "",
@@ -234,7 +353,6 @@ function RegisterAction({
   const content = (
     <>
       <span>{children}</span>
-
       <ArrowUpRight
         size={20}
         strokeWidth={1.9}
@@ -243,20 +361,16 @@ function RegisterAction({
     </>
   );
 
-  if (REGISTRATION_URL) {
-    return (
-      <a
-        className={className}
-        href={REGISTRATION_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {content}
-      </a>
-    );
-  }
-
-  return (
+  return REGISTRATION_URL ? (
+    <a
+      className={className}
+      href={REGISTRATION_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {content}
+    </a>
+  ) : (
     <button
       className={className}
       type="button"
@@ -267,9 +381,9 @@ function RegisterAction({
   );
 }
 
-/* =========================================================
+/* ==========================================================
    NAVIGATION
-========================================================= */
+========================================================== */
 
 function Navbar({ onMissing }) {
   const [open, setOpen] = useState(false);
@@ -280,11 +394,11 @@ function Navbar({ onMissing }) {
         <Brand />
 
         <nav
+          id="main-navigation"
           className={open ? "nav nav--open" : "nav"}
           aria-label="Main navigation"
-          id="main-navigation"
         >
-          {navItems.map((item) => (
+          {NAV_ITEMS.map((item) => (
             <a
               key={item.href}
               href={item.href}
@@ -323,14 +437,9 @@ function Navbar({ onMissing }) {
   );
 }
 
-/* =========================================================
-   HERO SECTION
-
-   Uses:
-   public/images/Hero-Image-1.*
-
-   No OrbScene or Three.js required in this section.
-========================================================= */
+/* ==========================================================
+   01 — HERO
+========================================================== */
 
 function Hero({ onMissing }) {
   const heroImage = useHeroImage();
@@ -340,20 +449,20 @@ function Hero({ onMissing }) {
       className="hero section-light"
       aria-labelledby="hero-heading"
     >
-      {/* Background visual */}
       <div
         className={`hero__background ${
           heroImage ? "hero__background--loaded" : ""
         }`}
         style={
           heroImage
-            ? { backgroundImage: `url("${heroImage}")` }
+            ? {
+                backgroundImage: `url("${heroImage}")`,
+              }
             : undefined
         }
         aria-hidden="true"
       />
 
-      {/* Subtle overlay for text readability */}
       <div
         className="hero__background-overlay"
         aria-hidden="true"
@@ -378,9 +487,10 @@ function Hero({ onMissing }) {
           </h1>
 
           <p className="hero__description">
-            Discover how Zoom and NEXT-IT can help educational
-            institutions across Nigeria create more connected,
-            engaging learning experiences.
+            Discover how Zoom and NEXT-IT can help
+            educational institutions across Nigeria
+            create more connected, engaging learning
+            experiences.
           </p>
 
           <div className="hero__actions">
@@ -418,8 +528,6 @@ function Hero({ onMissing }) {
           </div>
         </div>
 
-        {/* Intentionally empty.
-            Background image provides the laptop visual. */}
         <div className="hero__art" aria-hidden="true" />
       </div>
 
@@ -431,9 +539,9 @@ function Hero({ onMissing }) {
   );
 }
 
-/* =========================================================
-   DECORATIVE 3D-STYLE ARROW
-========================================================= */
+/* ==========================================================
+   DECORATIVE ARROWS
+========================================================== */
 
 function ArrowSwoosh({
   direction = "right",
@@ -441,12 +549,15 @@ function ArrowSwoosh({
 }) {
   return (
     <svg
-      className={`swoosh ${className} ${
-        direction === "left" ? "swoosh--left" : ""
-      }`}
+      className={`swoosh ${className}`}
       viewBox="0 0 260 180"
       fill="none"
       aria-hidden="true"
+      style={
+        direction === "left"
+          ? { transform: "scaleX(-1) rotate(26deg)" }
+          : undefined
+      }
     >
       <path
         d="M12 155C72 154 35 38 126 39C169 39 173 91 229 51"
@@ -474,9 +585,9 @@ function ArrowSwoosh({
   );
 }
 
-/* =========================================================
-   PAGE 2 — ZOOM EDUCATION
-========================================================= */
+/* ==========================================================
+   02 — EDUCATION
+========================================================== */
 
 function Education({ onMissing }) {
   return (
@@ -486,10 +597,7 @@ function Education({ onMissing }) {
       aria-labelledby="education-heading"
     >
       <div className="layout-width education__inner">
-        <div
-          id="about"
-          className="section-marker"
-        >
+        <div id="about" className="section-marker">
           <span>02 / THE IDEA</span>
           <span>ZOOM FOR EDUCATION</span>
         </div>
@@ -519,7 +627,7 @@ function Education({ onMissing }) {
           <div className="education__photo education__photo--right">
             <img
               src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=620&q=85"
-              alt="Graduates celebrating together"
+              alt="Graduates celebrating"
               loading="lazy"
             />
           </div>
@@ -535,7 +643,6 @@ function Education({ onMissing }) {
 
           <div className="education__sticker">
             <Video size={23} />
-
             <span>
               LEARNING
               <br />
@@ -555,10 +662,11 @@ function Education({ onMissing }) {
 
         <div className="education__footer">
           <p>
-            Zoom's communication platform brings teaching,
-            collaboration and institutional operations closer
-            together — with NEXT-IT helping Nigerian schools
-            explore what's possible.
+            Zoom's communication platform brings
+            teaching, collaboration and institutional
+            operations closer together — with NEXT-IT
+            helping Nigerian schools explore what's
+            possible.
           </p>
 
           <RegisterAction
@@ -573,30 +681,9 @@ function Education({ onMissing }) {
   );
 }
 
-/* =========================================================
-   PAGE 3 — IMMERSIVE EXPERIENCE
-========================================================= */
-
-const benefits = [
-  {
-    n: "01",
-    title: "ENGAGING\nCLASSROOMS",
-    copy: "Make digital learning more interactive, inclusive and accessible.",
-    Icon: GraduationCap,
-  },
-  {
-    n: "02",
-    title: "CONNECTED\nINSTITUTIONS",
-    copy: "Bring educators, teams and departments into the same conversation.",
-    Icon: Users,
-  },
-  {
-    n: "03",
-    title: "SMARTER\nWORKFLOWS",
-    copy: "Explore scalable, secure and AI-assisted ways to collaborate.",
-    Icon: Video,
-  },
-];
+/* ==========================================================
+   03 — IMMERSIVE EXPERIENCE
+========================================================== */
 
 function Experience({ onMissing }) {
   return (
@@ -631,15 +718,16 @@ function Experience({ onMissing }) {
           </div>
 
           <p>
-            From virtual classrooms to faculty collaboration,
-            discover how connected technology can strengthen
-            education across Nigeria.
+            From virtual classrooms to faculty
+            collaboration, discover how connected
+            technology can strengthen education
+            across Nigeria.
           </p>
         </div>
 
         <div
           className="experience__scene"
-          aria-label="A layered spatial showcase of connected learning"
+          aria-label="A layered showcase of connected learning"
         >
           <div className="experience__plane experience__plane--back">
             <span>CONNECTED LEARNING / 2026</span>
@@ -680,15 +768,11 @@ function Experience({ onMissing }) {
         </div>
 
         <div id="why-attend" className="benefits">
-          {benefits.map(({ n, title, copy, Icon }) => (
+          {BENEFITS.map(({ n, title, copy, Icon }) => (
             <article key={n} className="benefit">
               <div className="benefit__top">
                 <span>{n} / 03</span>
-
-                <Icon
-                  size={28}
-                  strokeWidth={1.5}
-                />
+                <Icon size={28} strokeWidth={1.5} />
               </div>
 
               <h3>{title}</h3>
@@ -714,22 +798,418 @@ function Experience({ onMissing }) {
   );
 }
 
-/* =========================================================
-   REGISTRATION NOTICE
-========================================================= */
+/* ==========================================================
+   04 — SPEAKER PORTRAIT
+========================================================== */
+
+function SpeakerPortrait({ speaker }) {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [speaker.image]);
+
+  return (
+    <div className="speaker__portrait">
+      {speaker.image && !imageFailed ? (
+        <img
+          src={speaker.image}
+          alt={`Portrait of ${speaker.name}`}
+          loading="lazy"
+          onError={() => setImageFailed(true)}
+        />
+      ) : (
+        <div
+          className="speaker__portrait-placeholder"
+          aria-label="Portrait to be announced"
+        >
+          <span className="speaker__portrait-number">
+            {speaker.id}
+          </span>
+
+          <div
+            className="speaker__silhouette"
+            aria-hidden="true"
+          />
+
+          <span className="speaker__portrait-note">
+            PORTRAIT COMING SOON
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ==========================================================
+   04 — SPEAKERS CAROUSEL
+========================================================== */
+
+function Speakers({ reducedMotion }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  const rootRef = useRef(null);
+  const apertureRef = useRef(null);
+  const progressRef = useRef(null);
+
+  const speaker = SPEAKERS[activeIndex];
+
+  const goTo = useCallback((index) => {
+    setActiveIndex(
+      (index + SPEAKERS.length) % SPEAKERS.length
+    );
+  }, []);
+
+  useEffect(() => {
+    const aperture = apertureRef.current;
+    const progress = progressRef.current;
+
+    if (!aperture || !progress) return;
+
+    if (reducedMotion || paused) {
+      gsap.set(aperture, {
+        clipPath: "inset(0% 0% 0% 0%)",
+        opacity: 1,
+      });
+
+      gsap.set(progress, {
+        scaleX: 1,
+      });
+
+      return;
+    }
+
+    const ctx = gsap.context(() => {
+      const timeline = gsap.timeline({
+        onComplete: () => {
+          setActiveIndex(
+            (index) =>
+              (index + 1) % SPEAKERS.length
+          );
+        },
+      });
+
+      timeline
+        .set(aperture, {
+          clipPath: "inset(0% 100% 0% 0%)",
+          opacity: 1,
+        })
+
+        .set(progress, {
+          scaleX: 0,
+          transformOrigin: "left center",
+        })
+
+        .to(aperture, {
+          clipPath: "inset(0% 0% 0% 0%)",
+          duration: 1.15,
+          ease: "power3.inOut",
+        })
+
+        .to(
+          progress,
+          {
+            scaleX: 1,
+            duration: 4.2,
+            ease: "none",
+          },
+          "<"
+        )
+
+        .to({}, { duration: 2.2 })
+
+        .to(aperture, {
+          clipPath: "inset(0% 0% 0% 100%)",
+          duration: 0.85,
+          ease: "power3.inOut",
+        });
+    }, rootRef);
+
+    return () => ctx.revert();
+  }, [activeIndex, paused, reducedMotion]);
+
+  return (
+    <section
+      id="speakers"
+      className="speakers"
+      ref={rootRef}
+      aria-labelledby="speakers-heading"
+    >
+      <div className="layout-width speakers__top">
+        <div className="section-marker section-marker--on-blue">
+          <span>04 / THE PEOPLE</span>
+          <span>VOICES SHAPING WHAT'S NEXT</span>
+        </div>
+
+        <div className="speakers__heading-row">
+          <h2
+            id="speakers-heading"
+            className="speakers__headline"
+          >
+            MEET THE
+            <br />
+            <em>SPEAKERS.</em>
+          </h2>
+
+          <p>
+            Ideas from the people helping institutions
+            think differently about connected education.
+          </p>
+        </div>
+      </div>
+
+      <div
+        className="speakers__window-wrap"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onFocusCapture={() => setPaused(true)}
+        onBlurCapture={(event) => {
+          if (
+            !event.currentTarget.contains(
+              event.relatedTarget
+            )
+          ) {
+            setPaused(false);
+          }
+        }}
+      >
+        <div
+          ref={apertureRef}
+          className="speakers__window"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <div
+            className="speakers__window-inner layout-width"
+            key={speaker.id}
+          >
+            <SpeakerPortrait speaker={speaker} />
+
+            <div className="speaker__details">
+              <span className="speaker__eyebrow">
+                FEATURED VOICE / {speaker.id} — 05
+              </span>
+
+              <h3>{speaker.name}</h3>
+
+              <p className="speaker__role">
+                {speaker.role}
+              </p>
+
+              <p className="speaker__organization">
+                {speaker.organization}
+              </p>
+
+              <p className="speaker__bio">
+                {speaker.bio}
+              </p>
+
+              <span className="speaker__annotation">
+                ZOOM × NEXT-IT / EDUCATION WEBINAR
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="layout-width speakers__bottom">
+        <div className="speakers__counter">
+          <strong>{speaker.id}</strong>
+          <span>/ 05</span>
+        </div>
+
+        <div
+          className="speakers__timeline"
+          aria-hidden="true"
+        >
+          <span ref={progressRef} />
+        </div>
+
+        <div
+          className="speakers__controls"
+          aria-label="Speaker carousel controls"
+        >
+          <button
+            type="button"
+            onClick={() => goTo(activeIndex - 1)}
+            aria-label="Previous speaker"
+          >
+            <ArrowLeft size={22} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              setPaused((value) => !value)
+            }
+            aria-label={
+              paused
+                ? "Resume speaker carousel"
+                : "Pause speaker carousel"
+            }
+            aria-pressed={paused}
+          >
+            {paused ? (
+              <Play size={18} />
+            ) : (
+              <Pause size={18} />
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => goTo(activeIndex + 1)}
+            aria-label="Next speaker"
+          >
+            <ArrowRight size={22} />
+          </button>
+        </div>
+      </div>
+
+      <div className="layout-width speakers__footnote">
+        SPEAKER LINEUP TO BE CONFIRMED
+      </div>
+    </section>
+  );
+}
+
+/* ==========================================================
+   05 — WEBINAR AGENDA
+========================================================== */
+
+function Agenda({ onMissing }) {
+  const [expanded, setExpanded] = useState(0);
+
+  return (
+    <section
+      id="agenda"
+      className="agenda section-grid"
+      aria-labelledby="agenda-heading"
+    >
+      <div className="layout-width">
+        <div className="section-marker">
+          <span>05 / THE PROGRAMME</span>
+          <span>WEBINAR AGENDA</span>
+        </div>
+
+        <div className="agenda__grid">
+          <div className="agenda__intro">
+            <div className="eyebrow">
+              <span className="eyebrow__dash" />
+              WHAT TO EXPECT
+            </div>
+
+            <h2
+              id="agenda-heading"
+              className="agenda__headline reveal"
+            >
+              LET'S
+              <br />
+              TALK
+              <br />
+              <span>EDUCATION.</span>
+            </h2>
+
+            <p>
+              Practical conversations, forward-thinking
+              ideas and a chance to hear from the people
+              behind the technology.
+            </p>
+
+            <RegisterAction
+              className="button button--blue"
+              onMissing={onMissing}
+            >
+              Reserve your spot
+            </RegisterAction>
+
+            <span className="agenda__note">
+              AGENDA PREVIEW — FINAL SESSION ORDER
+              AND TIMES TO BE CONFIRMED.
+            </span>
+          </div>
+
+          <div className="agenda__items">
+            {AGENDA.map((item, index) => {
+              const isOpen = expanded === index;
+
+              return (
+                <article
+                  key={item.number}
+                  className={`agenda__item ${
+                    isOpen ? "agenda__item--open" : ""
+                  }`}
+                >
+                  <button
+                    type="button"
+                    className="agenda__trigger"
+                    aria-expanded={isOpen}
+                    aria-controls={`agenda-details-${index}`}
+                    onClick={() =>
+                      setExpanded((current) =>
+                        current === index ? -1 : index
+                      )
+                    }
+                  >
+                    <span className="agenda__number">
+                      {item.number}
+                    </span>
+
+                    <span className="agenda__item-titles">
+                      <small>{item.category}</small>
+                      <strong>{item.title}</strong>
+                    </span>
+
+                    <span
+                      className="agenda__plus"
+                      aria-hidden="true"
+                    >
+                      {isOpen ? "−" : "+"}
+                    </span>
+                  </button>
+
+                  <div
+                    id={`agenda-details-${index}`}
+                    className="agenda__details"
+                    hidden={!isOpen}
+                  >
+                    <p>{item.detail}</p>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="agenda__end">
+          <span>
+            CONNECT. TEACH. COLLABORATE. ANYWHERE.
+          </span>
+
+          <ArrowUpRight size={26} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ==========================================================
+   REGISTRATION MODAL
+========================================================== */
 
 function RegistrationNotice({ onClose }) {
   useEffect(() => {
-    function onKeyDown(event) {
+    const handleKeyDown = (event) => {
       if (event.key === "Escape") {
         onClose();
       }
-    }
+    };
 
-    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [onClose]);
 
@@ -768,11 +1248,10 @@ function RegistrationNotice({ onClose }) {
         </h2>
 
         <p>
-          The registration link has not been configured yet.
-          Add your official Zoom webinar registration URL to{" "}
-          <code>VITE_ZOOM_REGISTRATION_URL</code> in your{" "}
-          <code>.env</code> file to activate every registration
-          button.
+          Add the official Zoom webinar registration URL
+          as <code>VITE_ZOOM_REGISTRATION_URL</code> in
+          your <code>.env</code> file to activate the
+          registration buttons.
         </p>
 
         <button
@@ -788,19 +1267,21 @@ function RegistrationNotice({ onClose }) {
   );
 }
 
-/* =========================================================
-   MAIN APP
-========================================================= */
+/* ==========================================================
+   MAIN APPLICATION
+========================================================== */
 
 export default function App() {
-  const [loaderDone, setLoaderDone] = useState(false);
-  const [noticeOpen, setNoticeOpen] = useState(false);
+  const [loaderDone, setLoaderDone] =
+    useState(false);
+
+  const [noticeOpen, setNoticeOpen] =
+    useState(false);
 
   const reducedMotion = useReducedMotion();
-
   const appRef = useRef(null);
 
-  const handleLoaderFinish = useCallback(() => {
+  const finishLoader = useCallback(() => {
     setLoaderDone(true);
   }, []);
 
@@ -812,9 +1293,9 @@ export default function App() {
     setNoticeOpen(false);
   }, []);
 
-  /* -------------------------------------------------------
+  /* ========================================================
      GSAP ANIMATIONS
-  --------------------------------------------------------- */
+  ======================================================== */
 
   useEffect(() => {
     if (!loaderDone || reducedMotion) return;
@@ -836,38 +1317,23 @@ export default function App() {
         }
       );
 
-      // Hero background reveal
-      gsap.fromTo(
-        ".hero__background",
-        {
-          opacity: 0,
-          scale: 1.055,
-        },
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 1.5,
-          ease: "power2.out",
-        }
-      );
-
-      // Section headlines
+      // Headline reveals
       gsap.utils
         .toArray(
-          ".education__headline, .experience__headline"
+          ".education__headline, .experience__headline, .agenda__headline"
         )
         .forEach((element) => {
           gsap.fromTo(
             element,
             {
-              y: 65,
+              y: 60,
               opacity: 0,
             },
             {
               y: 0,
               opacity: 1,
               ease: "power3.out",
-              duration: 1.1,
+              duration: 1.05,
               scrollTrigger: {
                 trigger: element,
                 start: "top 88%",
@@ -877,39 +1343,39 @@ export default function App() {
           );
         });
 
-      // Education photography
+      // Education photos
       gsap.fromTo(
         ".education__photo",
         {
-          y: 65,
+          y: 60,
           opacity: 0,
         },
         {
           y: 0,
           opacity: 1,
-          duration: 1.15,
+          duration: 1.1,
           stagger: 0.15,
           ease: "power3.out",
           scrollTrigger: {
             trigger: ".education__stage",
-            start: "top 65%",
+            start: "top 72%",
             once: true,
           },
         }
       );
 
-      // Benefits entrance
+      // Benefit reveals
       gsap.fromTo(
         ".benefit",
         {
-          y: 45,
+          y: 35,
           opacity: 0,
         },
         {
           y: 0,
           opacity: 1,
-          stagger: 0.14,
           duration: 0.8,
+          stagger: 0.12,
           ease: "power2.out",
           scrollTrigger: {
             trigger: ".benefits",
@@ -919,7 +1385,7 @@ export default function App() {
         }
       );
 
-      // Immersive scene parallax
+      // Experience parallax
       gsap.to(".experience__plane--image", {
         y: -45,
         ease: "none",
@@ -930,16 +1396,36 @@ export default function App() {
           scrub: 0.8,
         },
       });
+
+      // Agenda item reveals
+      gsap.fromTo(
+        ".agenda__item",
+        {
+          y: 25,
+          opacity: 0,
+        },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.7,
+          stagger: 0.08,
+          scrollTrigger: {
+            trigger: ".agenda__items",
+            start: "top 82%",
+            once: true,
+          },
+        }
+      );
     }, appRef);
 
     return () => ctx.revert();
   }, [loaderDone, reducedMotion]);
 
   return (
-    <div ref={appRef} className="app">
+    <div className="app" ref={appRef}>
       {!loaderDone && (
         <Loader
-          onFinish={handleLoaderFinish}
+          onFinish={finishLoader}
           reducedMotion={reducedMotion}
         />
       )}
@@ -952,6 +1438,10 @@ export default function App() {
         <Education onMissing={openNotice} />
 
         <Experience onMissing={openNotice} />
+
+        <Speakers reducedMotion={reducedMotion} />
+
+        <Agenda onMissing={openNotice} />
       </main>
 
       <footer className="site-footer">
@@ -962,9 +1452,7 @@ export default function App() {
             Future-ready education, powered by connection.
           </p>
 
-          <a href="#home">
-            BACK TO TOP ↑
-          </a>
+          <a href="#home">BACK TO TOP ↑</a>
         </div>
       </footer>
 
